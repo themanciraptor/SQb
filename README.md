@@ -64,5 +64,3 @@ currently acts as a combined table definition and query builder. A table does th
 - builds and maintains columns definitions (map\[column\]{type, receiver}).
 - includes a CompoundClause for filtering
 - Handles building a query (as a first slice)
-
-For an overview of planned work, see: https://vendasta.jira.com/browse/SSC-3674
