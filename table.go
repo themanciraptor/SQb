@@ -167,8 +167,13 @@ func (t *Table) Build(a Accumulator, dialect Dialect) *Query {
 		limitClause = t.limit.Build()
 	}
 
+	orderClause := ""
+	if t.orderBy.NumClauses() > 0 {
+		orderClause = t.orderBy.Build(paramList)
+	}
+
 	return &Query{
-		query:    fmt.Sprint(`SELECT `, strings.Join(selectedFields, ", "), ` FROM `, t.tableName, filters, ` ORDER BY `, t.orderBy.Build(paramList), limitClause),
+		query:    fmt.Sprint(`SELECT `, strings.Join(selectedFields, ", "), ` FROM `, t.tableName, filters, orderClause, limitClause),
 		scanList: scanList,
 		params:   paramList.GetParamList(),
 

@@ -19,11 +19,11 @@ type Clause interface {
 // A filter clause has a single param and a template which defines the column it filters and how it filters it.
 type FilterClause struct {
 	template   string
-	paramValue interface{}
+	paramValue any
 }
 
 // For simple predicates comparing primitive types, a Table will enforce a particular column exists before clause creation.
-func NewPrimitiveFilterClause(columnName string, operator string, paramTemplate string, p interface{}) *FilterClause {
+func NewPrimitiveFilterClause(columnName string, operator string, paramTemplate string, p any) *FilterClause {
 	if paramTemplate == "" {
 		paramTemplate = "%s"
 	}
@@ -112,7 +112,7 @@ type OrderByClause struct {
 
 func NewOrderByClause(columnName string, sortDirection SortDirection) *OrderByClause {
 	return &OrderByClause{
-		template:      "%s %s",
+		template:      "ORDER BY %s %s",
 		columnName:    columnName,
 		sortDirection: Ascending,
 	}

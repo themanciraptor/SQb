@@ -2,8 +2,7 @@ package sqb
 
 import (
 	"context"
-
-	"github.com/vendasta/gosdks/verrors"
+	"errors"
 )
 
 // In order to properly assign the result, in a generic way without requiring the
@@ -48,14 +47,14 @@ type tempDriver interface {
 func (q *Query) Run(ctx context.Context, psql tempDriver) error {
 	res, closer, err := psql.RunQuery(ctx, q.query, q.params)
 	if err != nil {
-		return verrors.WrapError(err, "Failed to run query")
+		return errors.Join(err, errors.New("failed to run query"))
 	}
 	defer closer(ctx)
 
 	for res.Next() {
 		err := res.Scan(q.scanList...)
 		if err != nil {
-			return verrors.WrapError(err, "Failed to convert row")
+			return errors.Join(err, errors.New("failed to scan row"))
 		}
 
 		q.accumulator.Acc()

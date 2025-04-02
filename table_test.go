@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vendasta/sales/internal/postgresql/sqb"
+	sqb "github.com/themanciraptor/SQb"
 )
 
 func Test_NewTable_Panics(t *testing.T) {
