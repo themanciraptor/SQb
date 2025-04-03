@@ -3,8 +3,8 @@ module github.com/themanciraptor/SQb
 go 1.19
 
 require (
-	github.com/lib/pq v1.10.7
-	github.com/stretchr/testify v1.8.0
+	github.com/lib/pq v1.10.9
+	github.com/stretchr/testify v1.10.0
 
 )
 
