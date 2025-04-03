@@ -5,32 +5,23 @@ import (
 	"errors"
 )
 
-// In order to properly assign the result, in a generic way without requiring the
-// developer to perform type checks. Developers should create a separate accumulator
-// object to accumulate results. See common_test.go for an example accumulator
-// implementation
-type Accumulator interface {
-	Acc()
-	GetColumnReceiverMap() map[string]interface{}
-}
-
-type Query struct {
+type Query[T any] struct {
 	scanList []interface{}
 	query    string
 	params   []interface{}
 
-	accumulator Accumulator
+	accumulator Accumulator[T]
 }
 
-func (q *Query) GetScanList() []interface{} {
+func (q *Query[T]) GetScanList() []interface{} {
 	return q.scanList
 }
 
-func (q *Query) GetQuery() string {
+func (q *Query[T]) GetQuery() string {
 	return q.query
 }
 
-func (q *Query) GetParams() []interface{} {
+func (q *Query[T]) GetParams() []interface{} {
 	return q.params
 }
 
@@ -44,7 +35,7 @@ type tempDriver interface {
 	RunQuery(ctx context.Context, query string, params []interface{}) (res tempRows, closer func(ctx context.Context), err error)
 }
 
-func (q *Query) Run(ctx context.Context, psql tempDriver) error {
+func (q *Query[T]) Run(ctx context.Context, psql tempDriver) error {
 	res, closer, err := psql.RunQuery(ctx, q.query, q.params)
 	if err != nil {
 		return errors.Join(err, errors.New("failed to run query"))

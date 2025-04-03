@@ -13,7 +13,7 @@ import (
 Table's hold information about a specific database table. They are essentially helper structs
 developer can use to easily build queries against our database.
 */
-type Table struct {
+type Table[T any] struct {
 	// The literal name of the table within the database
 	tableName string
 
@@ -31,7 +31,7 @@ type Table struct {
 }
 
 // Set receiver for a particular table column. The column must exist on the table.
-func (t *Table) SetColumnReceiver(columnName string, scanTo interface{}) *Table {
+func (t *Table[T]) SetColumnReceiver(columnName string, scanTo interface{}) *Table[T] {
 	if reflect.TypeOf(scanTo).Kind() != reflect.Ptr {
 		panic("SetField: scanTo must be reference pointer")
 	}
@@ -54,7 +54,7 @@ func (t *Table) SetColumnReceiver(columnName string, scanTo interface{}) *Table 
 	panic(fmt.Sprintf("SetField: column not included in table %v for %s", t.fields, columnName))
 }
 
-func (t *Table) LoadReceiversFromAccumulator(a Accumulator) *Table {
+func (t *Table[T]) LoadReceiversFromAccumulator(a Accumulator[T]) *Table[T] {
 	columnErrors := map[string]interface{}{}
 
 	receivers := a.GetColumnReceiverMap()
@@ -96,7 +96,7 @@ func (t *Table) LoadReceiversFromAccumulator(a Accumulator) *Table {
 	return t
 }
 
-func NewTable(tableName string, dialect Dialect, model interface{}) *Table {
+func NewTable[T any](tableName string, dialect Dialect, model interface{}) *Table[T] {
 	if reflect.TypeOf(model).Kind() != reflect.Ptr {
 		panic("QueryBuilder: Table model must be pointer to struct type")
 	}
@@ -107,7 +107,7 @@ func NewTable(tableName string, dialect Dialect, model interface{}) *Table {
 		panic("QueryBuilder: Table model must be pointer to struct type")
 	}
 
-	table := &Table{
+	table := &Table[T]{
 		tableName: tableName,
 		fields:    map[string]*Column{},
 		filter:    NewCompoundClause("AND"),
@@ -136,7 +136,7 @@ func NewTable(tableName string, dialect Dialect, model interface{}) *Table {
 //
 //	context. This support does not rely on the query builder per se. But
 //	having the query builder already will make implementation easier.
-func (t *Table) Build(a Accumulator, dialect Dialect) *Query {
+func (t *Table[T]) Build(a Accumulator[T], dialect Dialect) *Query[T] {
 	selectedFields := make([]string, 0, len(t.fields))
 	scanList := make([]interface{}, 0, len(t.fields))
 	paramList := NewParamList(dialect)
@@ -172,7 +172,7 @@ func (t *Table) Build(a Accumulator, dialect Dialect) *Query {
 		orderClause = t.orderBy.Build(paramList)
 	}
 
-	return &Query{
+	return &Query[T]{
 		query:    fmt.Sprint(`SELECT `, strings.Join(selectedFields, ", "), ` FROM `, t.tableName, filters, orderClause, limitClause),
 		scanList: scanList,
 		params:   paramList.GetParamList(),

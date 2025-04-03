@@ -8,7 +8,7 @@ import (
 )
 
 func Test_PrimitiveFilters_BuildCorrectly(t *testing.T) {
-	type TableFilterBuilder = func(tt *sqb.Table)
+	type TableFilterBuilder = func(tt *sqb.Table[exampleResult])
 
 	type testCase struct {
 		description    string
@@ -20,7 +20,7 @@ func Test_PrimitiveFilters_BuildCorrectly(t *testing.T) {
 		{
 			description:    "equals filter",
 			expectedClause: "cool = $1",
-			TableFilterBuilder: func(tt *sqb.Table) {
+			TableFilterBuilder: func(tt *sqb.Table[exampleResult]) {
 				tt.ColumnEquals("cool", "don't care")
 			},
 		},
@@ -28,7 +28,7 @@ func Test_PrimitiveFilters_BuildCorrectly(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			tt := sqb.NewTable("exampleTable", sqb.Psql(), &exampleModel{})
+			tt := sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &exampleModel{})
 			params := sqb.NewParamList(sqb.Psql())
 
 			tc.TableFilterBuilder(tt)
@@ -40,7 +40,7 @@ func Test_PrimitiveFilters_BuildCorrectly(t *testing.T) {
 
 func Test_IsNull_BuildsCorrectly(t *testing.T) {
 	params := sqb.NewParamList(sqb.Psql())
-	tt := sqb.NewTable("exampleTable", sqb.Psql(), &exampleModel{}).ColumnNull("cool")
+	tt := sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &exampleModel{}).ColumnNull("cool")
 
 	expected := "cool IS NULL"
 	actual := tt.BuildFilter(params)
@@ -53,7 +53,7 @@ func Test_IsNull_BuildsCorrectly(t *testing.T) {
 
 func Test_LimitClause_BuildsCorrectly(t *testing.T) {
 	params := sqb.NewParamList(sqb.Psql())
-	tt := sqb.NewTable("exampleTable", sqb.Psql(), &exampleModel{}).Limit(25, 5)
+	tt := sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &exampleModel{}).Limit(25, 5)
 
 	expected := "LIMIT 25 OFFSET 5"
 	actual := tt.Build(&exampleResultAccumulator{}, sqb.Psql())

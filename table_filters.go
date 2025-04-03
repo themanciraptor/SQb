@@ -11,7 +11,7 @@ import (
 //	to build custom filters.
 //
 // Provide public helper so custom clauses can easily check if they are valid
-func (t *Table) AssertFilterClauseValid(columnName string, param interface{}) {
+func (t *Table[T]) AssertFilterClauseValid(columnName string, param interface{}) {
 	var column *Column
 
 	if c, ok := t.fields[columnName]; !ok {
@@ -33,13 +33,13 @@ func (t *Table) AssertFilterClauseValid(columnName string, param interface{}) {
 	}
 }
 
-func (t *Table) AssertColumnExists(columnName string) {
+func (t *Table[T]) AssertColumnExists(columnName string) {
 	if _, ok := t.fields[columnName]; !ok {
 		panic(fmt.Sprintf("No column named %s found for table %s", columnName, t.tableName))
 	}
 }
 
-func (t *Table) ColumnEquals(columnName string, v interface{}) *Table {
+func (t *Table[T]) ColumnEquals(columnName string, v interface{}) *Table[T] {
 	t.AssertFilterClauseValid(columnName, v)
 
 	t.filter.AddClause(NewPrimitiveFilterClause(columnName, "=", "%s", v))
@@ -47,7 +47,7 @@ func (t *Table) ColumnEquals(columnName string, v interface{}) *Table {
 	return t
 }
 
-func (t *Table) ColumnNull(columnName string) *Table {
+func (t *Table[T]) ColumnNull(columnName string) *Table[T] {
 	t.AssertColumnExists(columnName)
 
 	t.filter.AddClause(NewPrimitiveFilterClause(columnName, "IS", "NULL", nil))
@@ -55,17 +55,17 @@ func (t *Table) ColumnNull(columnName string) *Table {
 	return t
 }
 
-func (t *Table) BuildFilter(params *ParamList) string {
+func (t *Table[T]) BuildFilter(params *ParamList) string {
 	return t.filter.Build(params)
 }
 
-func (t *Table) AddOrderByClause(columnName string, sortDirection SortDirection) *Table {
+func (t *Table[T]) AddOrderByClause(columnName string, sortDirection SortDirection) *Table[T] {
 	t.orderBy.AddClause(NewOrderByClause(columnName, sortDirection))
 
 	return t
 }
 
-func (t *Table) Limit(rowCount int64, offset int64) *Table {
+func (t *Table[T]) Limit(rowCount int64, offset int64) *Table[T] {
 	t.limit = NewLimitClause(rowCount, offset)
 
 	return t

@@ -30,14 +30,14 @@ func Test_NewTable_Panics(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
-			assert.PanicsWithValue(t, tc.panicMsg, func() { sqb.NewTable("example", sqb.Psql(), tc.tableModel) })
+			assert.PanicsWithValue(t, tc.panicMsg, func() { sqb.NewTable[exampleResult]("example", sqb.Psql(), tc.tableModel) })
 		})
 	}
 }
 
 func Test_SetColumnReceiver_Panics(t *testing.T) {
 	refModel := &exampleModel{}
-	tt := sqb.NewTable("exampleTable", sqb.Psql(), refModel)
+	tt := sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), refModel)
 
 	type testPanicMsg func()
 
@@ -100,7 +100,7 @@ func Test_CanBuildSimpleSelectQuery(t *testing.T) {
 	expectedScanList := []interface{}{&r.Name, &r.Created}
 
 	e := exampleModel{}
-	actualQuery := sqb.NewTable("exampleTable", sqb.Psql(), &e).
+	actualQuery := sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &e).
 		SetColumnReceiver("cool", &r.Name).
 		SetColumnReceiver("created_time", &r.Created).
 		Build(&acc, sqb.Psql())
@@ -119,7 +119,7 @@ func Test_TableWithQueryFiltersIsBuiltProperly(t *testing.T) {
 	expectedQuery := "SELECT cool, loves FROM exampleTable WHERE cool IS NULL"
 
 	e := exampleModel{}
-	actualQuery := sqb.NewTable("exampleTable", sqb.Psql(), &e).
+	actualQuery := sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &e).
 		SetColumnReceiver("cool", &r.Name).
 		SetColumnReceiver("loves", &e.Loves).
 		ColumnNull("cool").
@@ -133,7 +133,7 @@ func Test_CanAddReceiversFromReceiverMap(t *testing.T) {
 
 	e := exampleModel{}
 	assert.NotPanics(t, func() {
-		sqb.NewTable("exampleTable", sqb.Psql(), &e).LoadReceiversFromAccumulator(acc)
+		sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &e).LoadReceiversFromAccumulator(acc)
 	})
 }
 
@@ -192,7 +192,7 @@ func Test_ReceiverMapPanics(t *testing.T) {
 					},
 				}
 
-				sqb.NewTable("exampleTable", sqb.Psql(), &e).LoadReceiversFromAccumulator(acc)
+				sqb.NewTable[exampleResult]("exampleTable", sqb.Psql(), &e).LoadReceiversFromAccumulator(acc)
 			})
 		})
 	}

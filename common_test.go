@@ -109,3 +109,47 @@ func Test_ResultAccumulator_AccumulatesResults(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+func Test_DefaultAccumulator_AccumulatesResults(t *testing.T) {
+	a := sqb.NewAccumulator(func(r *exampleResult) map[string]interface{} {
+		return map[string]interface{}{
+			"cool":           &r.Name,
+			"created_time":   &r.Created,
+			"number_of_food": sqb.NewNullInt32(&r.NumFoods),
+			"number_of_star": sqb.NewNullInt64(&r.NumStars),
+			"radius_of_moon": sqb.NewNullFloat64(&r.MoonRadius),
+			"is_true_true":   sqb.NewNullBool(&r.IsTrue),
+			"loves":          &r.Loves,
+		}
+	})
+
+	r := a.GetColumnReceiverMap()
+
+	expectedTime := time.Date(2011, 11, 11, 00, 0, 0, 0, time.UTC)
+
+	*r["cool"].(*string) = "doom"
+	*r["created_time"].(*time.Time) = expectedTime
+	*r["number_of_food"].(*sqb.NullInt32).Int32 = 32
+	*r["number_of_star"].(*sqb.NullInt64).Int64 = 64
+	*r["radius_of_moon"].(*sqb.NullFloat64).Float64 = 64.64
+	*r["is_true_true"].(*sqb.NullBool).Bool = true
+	*r["loves"].(*[]string) = append(*r["loves"].(*[]string), "doom")
+
+	a.Acc()
+
+	expected := []exampleResult{
+		{
+			"doom",
+			expectedTime,
+			32,
+			64,
+			64.64,
+			true,
+			[]string{"doom"},
+		},
+	}
+
+	actual := a.GetResults()
+
+	assert.Equal(t, expected, actual)
+}

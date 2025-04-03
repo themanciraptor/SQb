@@ -1,21 +1,14 @@
 # SQb (Not production ready)
 
-A generic query builder intended to support query building in a generic way and make more
-of the query code we write reusable. For now, this is only intended to perform accessor
-queries.
+A generic query builder intended to support query building in a generic way and make more of the query code we write reusable. For now, this is only intended to perform accessor queries.
 
-The main advantage will be composability. Joins are intended to be programmatic, allowing
-us to create functions that not only return simple queries for tables, but also return more
-complex joins as a single object on which more filters or joins can be performed.
+The main advantage will be composability. Joins are intended to be programmatic, allowing us to create functions that not only return simple queries for tables, but also return more complex joins as a single object on which more filters or joins can be performed.
 
-This is not intended to be built like an ORM. Result objects are defined separately from
-domain models.
+This is not intended to be built like an ORM. Result objects are defined separately from domain models.
 
 # How it works
 
-We use the metadata provided by our models to allow us to perform type checking on our
-queries during development and perform a lot of the gruntwork automatically. To define a
-typical query, the following steps are necessary:
+We use the metadata provided by our models to allow us to perform type checking on our queries during development and perform a lot of the gruntwork automatically. To define a typical query, the following steps are necessary:
 
 1. Create a table.
 2. Define a result accumulator. See [Example Accumulator](common_test.go)
@@ -27,20 +20,15 @@ typical query, the following steps are necessary:
 
 ### Column
 
-A mapping between a column name, and a 2-tuple of its kind and receiver. If a receiver value
-is set, it is automatically added to the select statement against that table.
+A mapping between a column name, and a 2-tuple of its kind and receiver. If a receiver value is set, it is automatically added to the select statement against that table.
 
 ### CompoundClause
 
-A container for multiple clauses. Builds its own clauses iteratively. Clauses can be simple
-clauses or more CompoundClauses. These are intended to be abstracted away from developers
-except in cases where the provided filters do not cover the logic necessary. Before building
-a CompoundClause, always check to see if more generic filters will support your use case.
+A container for multiple clauses. Builds its own clauses iteratively. Clauses can be simple clauses or more CompoundClauses. These are intended to be abstracted away from developers except in cases where the provided filters do not cover the logic necessary. Before building a CompoundClause, always check to see if more generic filters will support your use case.
 
 ### Dialect
 
-Currently used as a catch-all for major differences between sql implementations. This holds
-information like how to define a variable within a sql statement.
+Currently used as a catch-all for major differences between sql implementations. This holds information like how to define a variable within a sql statement.
 
 ### FilterClause
 
